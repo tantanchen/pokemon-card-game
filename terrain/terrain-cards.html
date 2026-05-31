@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>宝可梦栖息地卡片</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap');
+
+  @page {
+    size: letter portrait;
+    margin: 0.15in;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: white;
+    padding: 0.15in;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .page + .page {
+    margin-top: 0.15in;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 2.55in);
+    grid-template-rows: repeat(3, 3.55in);
+    column-gap: 0;
+    row-gap: 0;
+  }
+
+  .card {
+    height: 3.55in;
+    border: 4px solid #CC1111;
+    border-radius: 14px;
+    overflow: hidden;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.15);
+    position: relative;
+  }
+
+  /* Inner decorative border */
+  .card::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 1.5px solid rgba(255,170,170,0.55);
+    border-radius: 10px;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .header {
+    background: linear-gradient(to bottom, #8C62C0, #5E3A9A);
+    color: white;
+    font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    text-align: center;
+    padding: 7px 4px 8px;
+    flex-shrink: 0;
+    letter-spacing: 1px;
+  }
+
+  .illustration {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    background: #D8C8F0;
+  }
+
+  .illustration img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .description {
+    background: linear-gradient(to bottom, #F5F0FF, #EBE4FF);
+    border-top: 1.5px solid #C8B8F0;
+    padding: 10px 8px;
+    flex-shrink: 0;
+    font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif;
+    font-size: 11px;
+    color: #333344;
+    text-align: center;
+    line-height: 1.7;
+  }
+
+</style>
+</head>
+<body>
+<div id="cardContainer"></div>
+<script>
+
+const CARDS = {
+  boulder:    { name: "大石头",  img: "boulder.png",    desc1: "巨大岩石投下浓密的阴影。",         desc2: "非常适合宝可梦捉迷藏。" },
+  campfire:   { name: "篝火",    img: "campfire.png",   desc1: "火焰轻轻摇曳，四周弥漫着神秘的气息。", desc2: "火属性的宝可梦难以抗拒这份温暖。" },
+  flower:     { name: "花",      img: "flower.png",     desc1: "花田里弥漫着馥郁的芬芳。",         desc2: "甜美的花香随风飘散，引来各种宝可梦。" },
+  hedge:      { name: "花篱",    img: "hedge.png",      desc1: "整齐的花篱让空间瞬间变成小庭园。", desc2: "仿佛能听到从哪里传来了鸟鸣。" },
+  hill:       { name: "高岗",    img: "hill.png",       desc1: "生长在高处，环境十分凉爽。",       desc2: "一阵阵风直吹进草丛深处。" },
+  sea:        { name: "海水",    img: "sea.png",        desc1: "海边的小小码头旁波光粼粼。",       desc2: "正在游泳的宝可梦说不定也会顺道过来。" },
+  stool:      { name: "脚踏凳",  img: "straw-stool.png",desc1: "放在书架旁，方便取高处的书本。",   desc2: "偶尔会有宝可梦不小心跑进来。" },
+  table:      { name: "干草桌子",img: "straw-table.png",desc1: "简约却安稳的空间。",              desc2: "宝可梦们也可以过上舒适的生活。" },
+  water:      { name: "水",      img: "water.png",      desc1: "生长在水边，总是水灵灵的，生机勃勃。", desc2: "清澈的水流似乎会引来各种宝可梦。" },
+};
+
+const pages = [
+  // Page 1: 9 cards
+  [
+    CARDS.boulder,
+    CARDS.campfire, CARDS.campfire, CARDS.campfire,
+    CARDS.hill,
+    CARDS.sea,
+    CARDS.stool,
+    CARDS.table,
+    CARDS.water,
+  ],
+  // Page 2: 8 cards
+  [
+    CARDS.flower, CARDS.flower, CARDS.flower, CARDS.flower,
+    CARDS.hedge,  CARDS.hedge,  CARDS.hedge,  CARDS.hedge,
+  ],
+];
+
+function makeCard(card) {
+  return `
+    <div class="card">
+      <div class="header">${card.name}</div>
+      <div class="illustration">
+        <img src="${card.img}" alt="${card.name}"/>
+      </div>
+      <div class="description">
+        <div>${card.desc1}</div>
+        <div>${card.desc2}</div>
+      </div>
+    </div>`;
+}
+
+const container = document.getElementById('cardContainer');
+pages.forEach(pageCards => {
+  const grid = document.createElement('div');
+  grid.className = 'grid page';
+  grid.innerHTML = pageCards.map(makeCard).join('');
+  container.appendChild(grid);
+});
+</script>
+</body>
+</html>
